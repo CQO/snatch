@@ -1,4 +1,6 @@
+import time
 import requests
+import datetime
 from tool import Tool
 from weixin import Weixin
 from requests.cookies import RequestsCookieJar
@@ -59,7 +61,7 @@ def weiqiang(text):
     itemID = itemList[0]
     itemID = itemID.replace('>', '')
     if (itemID in orderList):
-      print(orderList)
+      # print(orderList)
       print("跳过重复的订单: " + itemID)
     else:
       orderList[itemID] = True
@@ -96,6 +98,39 @@ def getPageCode():
   dataList = Tool.subStringArr(htmlData, '<table>', '</table>')
   content = weiqiang(dataList[0])
 
+
+def getPageDeadLine(key):
+  cookie_jar = RequestsCookieJar()
+  cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+  response = requests.get("https://project.peopleurl.cn/partyb/view.php?id=" + key, cookies = cookie_jar)
+  date = Tool.subString(response.text, '<td>完成时间</td><td><input type="text" value="', '" readonly></td>')
+  dateTime_p = datetime.datetime.strptime(date,'%Y-%m-%d')
+  # 需求名称
+  name = Tool.subString(response.text, 'id="ordername" value="', '" readonly>')
+  returnText = ''
+  if dateTime_p.__le__(datetime.datetime.now()):
+    return returnText + key + '. ' + name + '\n'
+  return ''
+
+# 提醒编辑确认
+def alertDeadLine():
+  cookie_jar = RequestsCookieJar()
+  cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+  response = requests.get("https://project.peopleurl.cn/partyb/list.php", cookies = cookie_jar)
+  # print(response.text)
+  # htmlData = clear(response.text)
+  dataList = Tool.subStringArr(response.text, 'href="view.php?id=', '">')
+  
+  # content = weiqiang(dataList[0])
+  alertText = ''
+  for key in dataList:
+    # 判断是否过期
+    alertText += getPageDeadLine(key)
+  if (alertText != ''):
+    sendMessage('有编辑未点击完成项目:\n' + alertText)
+
+# alertDeadLine()
+
 scheduler = BlockingScheduler()
 # 每10分钟获取cook
 scheduler.add_job(getcookie, 'cron', minute="1", id='job1')
@@ -103,3 +138,5 @@ scheduler.add_job(getcookie, 'cron', minute="1", id='job1')
 # 每10秒获取最新订单
 scheduler.add_job(getPageCode, 'interval', seconds=5, id='job2')
 scheduler.start()
+
+scheduler.add_job(alertDeadLine, 'cron', hour='17', minute='00', second='00', id='job3')
