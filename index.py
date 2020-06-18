@@ -112,22 +112,22 @@ def getPageDeadLine(key):
     return returnText + key + '. ' + name + '\n'
   return ''
 
-# 提醒编辑确认
-def alertDeadLine():
-  cookie_jar = RequestsCookieJar()
-  cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
-  response = requests.get("https://project.peopleurl.cn/partyb/list.php", cookies = cookie_jar)
-  # print(response.text)
-  # htmlData = clear(response.text)
-  dataList = Tool.subStringArr(response.text, 'href="view.php?id=', '">')
+# # 提醒编辑确认
+# def alertDeadLine():
+#   cookie_jar = RequestsCookieJar()
+#   cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+#   response = requests.get("https://project.peopleurl.cn/partyb/list.php", cookies = cookie_jar)
+#   # print(response.text)
+#   # htmlData = clear(response.text)
+#   dataList = Tool.subStringArr(response.text, 'href="view.php?id=', '">')
   
-  # content = weiqiang(dataList[0])
-  alertText = ''
-  for key in dataList:
-    # 判断是否过期
-    alertText += getPageDeadLine(key)
-  if (alertText != ''):
-    sendMessage('有编辑未点击完成项目:\n' + alertText)
+#   # content = weiqiang(dataList[0])
+#   alertText = ''
+#   for key in dataList:
+#     # 判断是否过期
+#     alertText += getPageDeadLine(key)
+#   if (alertText != ''):
+#     sendMessage('有编辑未点击完成项目:\n' + alertText)
 
 # alertDeadLine()
 
@@ -139,4 +139,4 @@ scheduler.add_job(getcookie, 'cron', minute="1", id='job1')
 scheduler.add_job(getPageCode, 'interval', seconds=5, id='job2')
 scheduler.start()
 
-scheduler.add_job(alertDeadLine, 'cron', hour='17', minute='00', second='00', id='job3')
+# scheduler.add_job(alertDeadLine, 'cron', hour='17', minute='00', second='00', id='job3')
