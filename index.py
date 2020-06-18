@@ -71,7 +71,7 @@ def weiqiang(text):
     itemID = itemID.replace('>', '')
     if (itemID in orderList):
       # print(orderList)
-      print("跳过重复的订单: " + itemID)
+      # print("跳过重复的订单: " + itemID)
     else:
       orderList[itemID] = True
       name = itemList[1]
@@ -83,6 +83,7 @@ def weiqiang(text):
       
       department = department.replace(' style="width: 130px;">', '')
       department = department.replace('>', '')
+      print('发现新订单!')
       sendMessage("项目编号: %s\n项目名称: %s\n%s" % (itemID, name, ddxx(itemID)))
 
 def sendMessage(content):
