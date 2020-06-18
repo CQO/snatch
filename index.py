@@ -28,7 +28,7 @@ def getcookie():
 getcookie()
 
 # 已经提醒的订单
-orderList = {}
+orderList = {"39": True, "38": True, "30": True, }
 
 # 数据清理
 def clear(text):
