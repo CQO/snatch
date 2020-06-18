@@ -15,7 +15,7 @@ cookiesData = ''
 def getcookie():
   global cookiesData
   response = requests.post("https://project.peopleurl.cn/php/interface/login.php", {'username': '蒲鸽', 'password': 'MMit7750'})
-
+  print(response.text)
   #获取response中的cookies
 
   cookies=response.cookies.get_dict()
@@ -28,7 +28,7 @@ def getcookie():
 getcookie()
 
 # 已经提醒的订单
-orderList = {"39": True, "38": True, "30": True, }
+orderList = {"39": True, "38": True, "30": True, "40": True}
 
 # 数据清理
 def clear(text):
