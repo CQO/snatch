@@ -12,10 +12,18 @@ weixin = Weixin(corpid="ww7192afc91d2f618a", corpsecret="lmLChwwkbfleWMUxJKkk2QL
 
 cookiesData = ''
 
+
+def login():
+  response = requests.post("http://172.31.9.1:8080/PortalServer/Webauth/webAuthAction!login.action", {'userName': 'puge', 'password': 'MMit7750'})
+  print(response.text)
+
+# 先自动登录网络
+login()
+
 def getcookie():
   global cookiesData
   response = requests.post("https://project.peopleurl.cn/php/interface/login.php", {'username': '蒲鸽', 'password': 'MMit7750'})
-  print(response.text)
+  # print(response.text)
   #获取response中的cookies
 
   cookies=response.cookies.get_dict()
@@ -139,5 +147,6 @@ scheduler.add_job(getcookie, 'cron', minute="1", id='job1')
 # 每10秒获取最新订单
 scheduler.add_job(getPageCode, 'interval', seconds=5, id='job2')
 scheduler.start()
+
 
 # scheduler.add_job(alertDeadLine, 'cron', hour='17', minute='00', second='00', id='job3')
