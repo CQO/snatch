@@ -18,7 +18,7 @@ def login():
   print(response.text)
 
 # 先自动登录网络
-login()
+# login()
 
 def getcookie():
   global cookiesData
@@ -71,7 +71,7 @@ def weiqiang(text):
     itemID = itemID.replace('>', '')
     if (itemID in orderList):
       # print(orderList)
-      # print("跳过重复的订单: " + itemID)
+      print("跳过重复的订单: " + itemID)
     else:
       orderList[itemID] = True
       name = itemList[1]
@@ -143,10 +143,10 @@ def getPageDeadLine(key):
 
 scheduler = BlockingScheduler()
 # 每10分钟获取cook
-scheduler.add_job(getcookie, 'cron', minute="1", id='job1')
+scheduler.add_job(getcookie, 'cron', minute="20", id='job1')
 
 # 每10秒获取最新订单
-scheduler.add_job(getPageCode, 'interval', seconds=5, id='job2')
+scheduler.add_job(getPageCode, 'interval', seconds=10, id='job2')
 scheduler.start()
 
 
