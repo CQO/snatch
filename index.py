@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*
 import time
+import json
 import requests
 import datetime
 from tool import Tool
@@ -32,11 +33,17 @@ def getcookie():
 
   cookiesData = cookies["PHPSESSID"]
 
+
+
+# 加载文件
+data = open('data.json', 'r')
+# 已经提醒的订单
+orderList = json.loads(data.read())
+data.close()
+
+
 # 获取cookie
 getcookie()
-
-# 已经提醒的订单
-orderList = {"49": True, "48": True, "47": True, "45": True}
 
 # 数据清理
 def clear(text):
@@ -69,10 +76,10 @@ def weiqiang(text):
     itemList = Tool.subStringArr('sdsd' + item, '<td', '</td>')
     itemID = itemList[0]
     itemID = itemID.replace('>', '')
-    if (itemID in orderList):
-      # print(orderList)
-      print("跳过重复的订单: " + itemID)
-    else:
+    if not itemID.isdigit():
+      print("跳过异常订单: " + itemID)
+      continue
+    if (itemID not in orderList):
       orderList[itemID] = True
       name = itemList[1]
       name = name.replace('<a href="order.php?id=' + itemID + '">', '')
@@ -83,8 +90,11 @@ def weiqiang(text):
       
       department = department.replace(' style="width: 130px;">', '')
       department = department.replace('>', '')
-      print('发现新订单!')
+      print('发现新订单:' + itemID)
       sendMessage("项目编号: %s\n项目名称: %s\n%s" % (itemID, name, ddxx(itemID)))
+      with open('data.json', 'w') as f:
+        f.write(json.dumps(orderList))
+        f.close()
 
 def sendMessage(content):
   weixin.getToken()
@@ -100,12 +110,12 @@ def sendMessage(content):
 
 def getPageCode():
   cookie_jar = RequestsCookieJar()
-  print("获取最新订单信息")
+  print("获取最新订单信息-" + time.asctime(time.localtime(time.time())))
   cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
   response = requests.get("https://project.peopleurl.cn/partyb/main.php", cookies = cookie_jar)
   # print(response.text)
   htmlData = clear(response.text)
-  dataList = Tool.subStringArr(htmlData, '<table>', '</table>')
+  dataList = Tool.subStringArr(htmlData, '<td>操作</td>', '</table>')
   content = weiqiang(dataList[0])
 
 
@@ -143,10 +153,10 @@ def getPageDeadLine(key):
 
 scheduler = BlockingScheduler()
 # 每10分钟获取cook
-scheduler.add_job(getcookie, 'cron', minute="20", id='job1')
+# scheduler.add_job(getcookie, 'interval', seconds=20, id='job1')
 
 # 每10秒获取最新订单
-scheduler.add_job(getPageCode, 'interval', seconds=10, id='job2')
+scheduler.add_job(getPageCode, 'interval', seconds=20, id='job2')
 scheduler.start()
 
 
