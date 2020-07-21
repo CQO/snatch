@@ -24,7 +24,7 @@ def login():
 def getcookie():
   global cookiesData
   response = requests.post("https://project.peopleurl.cn/php/interface/login.php", {'username': '蒲鸽', 'password': 'MMit7750'})
-  # print(response.text)
+  print(response.text)
   #获取response中的cookies
 
   cookies=response.cookies.get_dict()
@@ -57,7 +57,7 @@ def ddxx(id):
   cookie_jar = RequestsCookieJar()
   cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
   response = requests.get("https://project.peopleurl.cn/partyb/bid.php?id=" + id, cookies = cookie_jar)
-  print(response.text)
+  # print(response.text)
 
   # 分析处理数据
   # 申请人
