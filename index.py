@@ -57,7 +57,7 @@ def ddxx(id):
   cookie_jar = RequestsCookieJar()
   cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
   response = requests.get("https://project.peopleurl.cn/partyb/bid.php?id=" + id, cookies = cookie_jar)
-  # print(response.text)
+  print(response.text)
 
   # 分析处理数据
   # 申请人
