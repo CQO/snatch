@@ -9,17 +9,18 @@ from requests.cookies import RequestsCookieJar
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-weixin = Weixin(corpid="ww7192afc91d2f618a", corpsecret="lmLChwwkbfleWMUxJKkk2QLp121Lse-BU92Z08fC_fc")
-
-cookiesData = ''
-
-
 def login():
   response = requests.post("http://172.31.9.1:8080/PortalServer/Webauth/webAuthAction!login.action", {'userName': 'puge', 'password': 'MMit7750'})
   print(response.text)
 
 # 先自动登录网络
-# login()
+login()
+
+weixin = Weixin(corpid="ww7192afc91d2f618a", corpsecret="lmLChwwkbfleWMUxJKkk2QLp121Lse-BU92Z08fC_fc")
+
+cookiesData = ''
+
+
 
 def getcookie():
   global cookiesData
