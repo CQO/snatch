@@ -14,7 +14,7 @@ def login():
   print(response.text)
 
 # 先自动登录网络
-login()
+# login()
 
 weixin = Weixin(corpid="ww7192afc91d2f618a", corpsecret="lmLChwwkbfleWMUxJKkk2QLp121Lse-BU92Z08fC_fc")
 
