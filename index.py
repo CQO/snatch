@@ -29,10 +29,9 @@ def getcookie():
   #获取response中的cookies
 
   cookies=response.cookies.get_dict()
+  print(cookies)
 
-  print("获取到cookies: " + cookies["PHPSESSID"])
-
-  cookiesData = cookies["PHPSESSID"]
+  cookiesData = cookies
 
 
 
@@ -56,7 +55,9 @@ def clear(text):
 
 def ddxx(id):
   cookie_jar = RequestsCookieJar()
-  cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+  cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
+  cookie_jar.set("sso_s", cookiesData["sso_s"], domain="peopleurl.cn")
+  cookie_jar.set("sso_u", cookiesData["sso_u"], domain="peopleurl.cn")
   response = requests.get("https://project.peopleurl.cn/partyb/bid.php?id=" + id, cookies = cookie_jar)
   # print(response.text)
 
@@ -112,7 +113,9 @@ def sendMessage(content):
 def getPageCode():
   cookie_jar = RequestsCookieJar()
   print("获取最新订单信息-" + time.asctime(time.localtime(time.time())))
-  cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+  cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
+  cookie_jar.set("sso_s", cookiesData["sso_s"], domain="peopleurl.cn")
+  cookie_jar.set("sso_u", cookiesData["sso_u"], domain="peopleurl.cn")
   response = requests.get("https://project.peopleurl.cn/partyb/main.php", cookies = cookie_jar)
   # print(response.text)
   htmlData = clear(response.text)
@@ -122,7 +125,9 @@ def getPageCode():
 
 def getPageDeadLine(key):
   cookie_jar = RequestsCookieJar()
-  cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+  cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
+  cookie_jar.set("sso_s", cookiesData["sso_s"], domain="peopleurl.cn")
+  cookie_jar.set("sso_u", cookiesData["sso_u"], domain="peopleurl.cn")
   response = requests.get("https://project.peopleurl.cn/partyb/view.php?id=" + key, cookies = cookie_jar)
   date = Tool.subString(response.text, '<td>完成时间</td><td><input type="text" value="', '" readonly></td>')
   dateTime_p = datetime.datetime.strptime(date,'%Y-%m-%d')
@@ -136,7 +141,7 @@ def getPageDeadLine(key):
 # # 提醒编辑确认
 # def alertDeadLine():
 #   cookie_jar = RequestsCookieJar()
-#   cookie_jar.set("PHPSESSID", cookiesData, domain="project.peopleurl.cn")
+#   cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
 #   response = requests.get("https://project.peopleurl.cn/partyb/list.php", cookies = cookie_jar)
 #   # print(response.text)
 #   # htmlData = clear(response.text)
