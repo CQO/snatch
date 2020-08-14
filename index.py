@@ -5,6 +5,7 @@ import requests
 import datetime
 from tool import Tool
 from weixin import Weixin
+from aliveClient import AliveClient
 from requests.cookies import RequestsCookieJar
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -14,10 +15,10 @@ def login():
   print(response.text)
 
 # 先自动登录网络
-# login()
+login()
 
 weixin = Weixin(corpid="ww7192afc91d2f618a", corpsecret="lmLChwwkbfleWMUxJKkk2QLp121Lse-BU92Z08fC_fc")
-
+alive = AliveClient(name="全媒体抢单监控", interval = 5 * 60 * 1000)
 cookiesData = ''
 
 
@@ -121,6 +122,7 @@ def getPageCode():
   htmlData = clear(response.text)
   dataList = Tool.subStringArr(htmlData, '<td>操作</td>', '</table>')
   content = weiqiang(dataList[0])
+  alive.updata()
 
 
 def getPageDeadLine(key):
@@ -158,11 +160,14 @@ def getPageDeadLine(key):
 # alertDeadLine()
 
 scheduler = BlockingScheduler()
-# 每10分钟获取cook
-# scheduler.add_job(getcookie, 'interval', seconds=20, id='job1')
+# 每60分钟获取cook
+scheduler.add_job(getcookie, 'interval', seconds=3600, id='job1')
 
 # 每10秒获取最新订单
 scheduler.add_job(getPageCode, 'interval', seconds=20, id='job2')
+
+# 每5小时登陆一次wifi
+scheduler.add_job(login, 'interval', seconds=3600 * 5, id='job3')
 scheduler.start()
 
 
