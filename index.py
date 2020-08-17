@@ -11,6 +11,7 @@ import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 def login():
+  print('登陆网络')
   response = requests.post("http://172.31.9.1:8080/PortalServer/Webauth/webAuthAction!login.action", {'userName': 'puge', 'password': 'MMit7750'})
   print(response.text)
 
