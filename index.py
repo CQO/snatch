@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 import time
+import sys
 import json
 import requests
 import datetime
-import sys
 from tool import Tool
 from weixin import Weixin
 from aliveClient import AliveClient
@@ -11,9 +11,10 @@ from requests.cookies import RequestsCookieJar
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-# 使用utf8
-reload(sys)  
-sys.setdefaultencoding('utf8')
+# 手动设置编码
+import sys
+import codecs
+sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 def login():
   print('登陆网络')
