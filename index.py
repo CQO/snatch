@@ -3,12 +3,17 @@ import time
 import json
 import requests
 import datetime
+import sys
 from tool import Tool
 from weixin import Weixin
 from aliveClient import AliveClient
 from requests.cookies import RequestsCookieJar
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
+
+# 使用utf8
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 def login():
   print('登陆网络')
