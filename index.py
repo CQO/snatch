@@ -166,7 +166,7 @@ def getPageDeadLine(key):
 
 # alertDeadLine()
 
-scheduler = BlockingScheduler()
+scheduler = BlockingScheduler(timezone="Asia/Shanghai")
 # 每60分钟获取cook
 scheduler.add_job(getcookie, 'interval', seconds=3600, id='job1')
 
