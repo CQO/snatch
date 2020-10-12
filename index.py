@@ -22,7 +22,7 @@ def login():
   print(response.text)
 
 # 先自动登录网络
-login()
+# login()
 
 weixin = Weixin(corpid="ww7192afc91d2f618a", corpsecret="lmLChwwkbfleWMUxJKkk2QLp121Lse-BU92Z08fC_fc")
 alive = AliveClient(name="全媒体抢单监控", interval = 5 * 60 * 1000)
@@ -32,7 +32,7 @@ cookiesData = ''
 
 def getcookie():
   global cookiesData
-  response = requests.post("https://project.peopleurl.cn/php/interface/login.php", {'username': '蒲鸽', 'password': 'MMit7750'})
+  response = requests.post("https://project.peopleurl.cn/interface/public/index.php/user/login", json.dumps({"username": "蒲鸽", "password": "MMit7750"}))
   print(response.text)
   #获取response中的cookies
 
@@ -52,14 +52,6 @@ data.close()
 
 # 获取cookie
 getcookie()
-
-# 数据清理
-def clear(text):
-  text = text.replace('\r', '')
-  text = text.replace('\n', '')
-  text = text.replace('\t', '')
-  return text
-
 
 def ddxx(id):
   cookie_jar = RequestsCookieJar()
@@ -109,7 +101,9 @@ def weiqiang(text):
 def sendMessage(content):
   weixin.getToken()
   weixin.sendMessage({
-    "touser" : "@all",
+    # PuGe
+    # "touser" : "@all",
+    "touser" : "PuGe",
     "msgtype" : "text",
     "agentid" : 1000002,
     "text" : {
@@ -122,14 +116,16 @@ def getPageCode():
   cookie_jar = RequestsCookieJar()
   print("获取最新订单信息-" + time.asctime(time.localtime(time.time())))
   cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
-  cookie_jar.set("sso_s", cookiesData["sso_s"], domain="peopleurl.cn")
-  cookie_jar.set("sso_u", cookiesData["sso_u"], domain="peopleurl.cn")
-  response = requests.get("https://project.peopleurl.cn/partyb/main.php", cookies = cookie_jar)
+  # cookie_jar.set("sso_s", cookiesData["sso_s"], domain="peopleurl.cn")
+  # cookie_jar.set("sso_u", cookiesData["sso_u"], domain="peopleurl.cn")
+  response = requests.post("https://project.peopleurl.cn/interface/public/index.php/order/xqlists", '{"demand_type":1,"pageInfo":{"page":1,"pageSize":15,"total":1},"searchInfo":{"status":"","dep_id":"","name":"","form_type":""}}', cookies = cookie_jar)
   # print(response.text)
-  htmlData = clear(response.text)
-  dataList = Tool.subStringArr(htmlData, '<td>操作</td>', '</table>')
-  content = weiqiang(dataList[0])
-  alive.updata()
+  resData = response.json()
+  print(resData['data'])
+  # htmlData = clear(response.text)
+  # dataList = Tool.subStringArr(htmlData, '<td>操作</td>', '</table>')
+  # content = weiqiang(dataList[0])
+  # alive.updata()
 
 
 def getPageDeadLine(key):
@@ -175,7 +171,8 @@ scheduler.add_job(getPageCode, 'interval', seconds=20, id='job2')
 
 # 每5小时登陆一次wifi
 scheduler.add_job(login, 'interval', seconds=3600 * 5, id='job3')
-scheduler.start()
+# scheduler.start()
+getPageCode()
 
 
 # scheduler.add_job(alertDeadLine, 'cron', hour='17', minute='00', second='00', id='job3')
