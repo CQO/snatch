@@ -53,47 +53,19 @@ data.close()
 # 获取cookie
 getcookie()
 
-def ddxx(id):
-  cookie_jar = RequestsCookieJar()
-  cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
-  cookie_jar.set("sso_s", cookiesData["sso_s"], domain="peopleurl.cn")
-  cookie_jar.set("sso_u", cookiesData["sso_u"], domain="peopleurl.cn")
-  response = requests.get("https://project.peopleurl.cn/partyb/bid.php?id=" + id, cookies = cookie_jar)
-  # print(response.text)
+def ddxx(item):
+  return "申请部门: %s\n联系方式: %s\n完成时间: %s\n详细需求: %s\n需求描述: %s\n" % (item['dep_name'], item['contact'], item['finish_time_f'], item['form_type_name'], item['description'])
 
-  # 分析处理数据
-  # 申请人
-  sqr = Tool.subString(response.text, '<td>申请人</td><td><input type="text" value="', '" id=')
-  sqbm = Tool.subString(response.text, '<td>申请部门</td><td><input type="text" value="', '" id=')
-  lxfs = Tool.subString(response.text, '<td>联系方式</td><td><input type="text" id="contact" value="', '" readonly')
-  wcsj = Tool.subString(response.text, '<td>完成时间</td><td><input type="text" id="dealtime" value="', '" readonly')
-  xxxq = Tool.subString(response.text, '<p><span>详细需求：</span></p>', '</div>')
-  xqms = Tool.subString(response.text, '<textarea id="description" readonly>', '</textarea>')
-  return "申请人: %s\n申请部门: %s\n联系方式: %s\n完成时间: %s\n详细需求: %s\n需求描述: %s\n" % (sqr, sqbm, lxfs, wcsj, xxxq, xqms)
-
-def weiqiang(text):
-  dataList = Tool.subStringArr(text, '<tr>', '</tr>')
+def weiqiang(dataList):
   returnData = ''
   for item in dataList:
-    itemList = Tool.subStringArr('sdsd' + item, '<td', '</td>')
-    itemID = itemList[0]
-    itemID = itemID.replace('>', '')
-    if not itemID.isdigit():
-      print("跳过异常订单: " + itemID)
-      continue
+    itemID = item['id']
     if (itemID not in orderList):
       orderList[itemID] = True
-      name = itemList[1]
-      name = name.replace('<a href="order.php?id=' + itemID + '">', '')
-      name = name.replace('</a>', '')
-      name = name.replace('>', '')
-      
-      department = itemList[4]
-      
-      department = department.replace(' style="width: 130px;">', '')
-      department = department.replace('>', '')
+      name = item['name']
+      department = item['description']
       print('发现新订单:' + itemID)
-      sendMessage("项目编号: %s\n项目名称: %s\n%s" % (itemID, name, ddxx(itemID)))
+      sendMessage("项目编号: %s\n项目名称: <a href='https://project.peopleurl.cn/demand/demandDetail/%s'>%s</a>\n%s" % (itemID, itemID, name, ddxx(item)))
       with open('data.json', 'w') as f:
         f.write(json.dumps(orderList))
         f.close()
@@ -102,8 +74,8 @@ def sendMessage(content):
   weixin.getToken()
   weixin.sendMessage({
     # PuGe
-    # "touser" : "@all",
-    "touser" : "PuGe",
+    "touser" : "@all",
+    # "touser" : "PuGe",
     "msgtype" : "text",
     "agentid" : 1000002,
     "text" : {
@@ -121,11 +93,15 @@ def getPageCode():
   response = requests.post("https://project.peopleurl.cn/interface/public/index.php/order/xqlists", '{"demand_type":1,"pageInfo":{"page":1,"pageSize":15,"total":1},"searchInfo":{"status":"","dep_id":"","name":"","form_type":""}}', cookies = cookie_jar)
   # print(response.text)
   resData = response.json()
-  print(resData['data'])
-  # htmlData = clear(response.text)
-  # dataList = Tool.subStringArr(htmlData, '<td>操作</td>', '</table>')
-  # content = weiqiang(dataList[0])
-  # alive.updata()
+  # print(resData['data']['lists'])
+  content = weiqiang(resData['data']['lists'])
+  # 获取临时单子
+  response = requests.post("https://project.peopleurl.cn/interface/public/index.php/order/xqlists", '{"demand_type":2,"pageInfo":{"page":1,"pageSize":15,"total":1},"searchInfo":{"status":"","dep_id":"","name":"","form_type":""}}', cookies = cookie_jar)
+  # print(response.text)
+  resData = response.json()
+  # print(resData['data']['lists'])
+  content = weiqiang(resData['data']['lists'])
+  alive.updata()
 
 
 def getPageDeadLine(key):
@@ -143,24 +119,7 @@ def getPageDeadLine(key):
     return returnText + key + '. ' + name + '\n'
   return ''
 
-# # 提醒编辑确认
-# def alertDeadLine():
-#   cookie_jar = RequestsCookieJar()
-#   cookie_jar.set("PHPSESSID", cookiesData["PHPSESSID"], domain="project.peopleurl.cn")
-#   response = requests.get("https://project.peopleurl.cn/partyb/list.php", cookies = cookie_jar)
-#   # print(response.text)
-#   # htmlData = clear(response.text)
-#   dataList = Tool.subStringArr(response.text, 'href="view.php?id=', '">')
-  
-#   # content = weiqiang(dataList[0])
-#   alertText = ''
-#   for key in dataList:
-#     # 判断是否过期
-#     alertText += getPageDeadLine(key)
-#   if (alertText != ''):
-#     sendMessage('有编辑未点击完成项目:\n' + alertText)
-
-# alertDeadLine()
+getPageCode()
 
 scheduler = BlockingScheduler(timezone="Asia/Shanghai")
 # 每60分钟获取cook
@@ -170,9 +129,8 @@ scheduler.add_job(getcookie, 'interval', seconds=3600, id='job1')
 scheduler.add_job(getPageCode, 'interval', seconds=20, id='job2')
 
 # 每5小时登陆一次wifi
-scheduler.add_job(login, 'interval', seconds=3600 * 5, id='job3')
-# scheduler.start()
-getPageCode()
+# scheduler.add_job(login, 'interval', seconds=3600 * 5, id='job3')
+scheduler.start()
 
 
 # scheduler.add_job(alertDeadLine, 'cron', hour='17', minute='00', second='00', id='job3')
