@@ -129,7 +129,7 @@ scheduler.add_job(getcookie, 'interval', seconds=3600, id='job1')
 scheduler.add_job(getPageCode, 'interval', seconds=20, id='job2')
 
 # 每5小时登陆一次wifi
-scheduler.add_job(login, 'interval', seconds=3600 * 5, id='job3')
+# scheduler.add_job(login, 'interval', seconds=3600 * 5, id='job3')
 scheduler.start()
 
 
